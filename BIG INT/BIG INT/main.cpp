@@ -38,7 +38,31 @@ public:
 		strcpy(str,sample.str);
 		return *this;
 	}
+	
+	bool operator==(const BigCount & sample){
+		if(this == &sample){
+			return true;
+		}
+		bool ans = true;
+		if(len != sample.len || is_neg != sample.is_neg){
+			ans = false;
+		}
+		if(strcmp(str,sample.str)) {
+			ans = false;
+		}
+		for(int i = 0;i < len;i++){
+			if(num[i] != sample.num[i]){
+				ans = false;
+				break;
+			}
+		}
+		return ans;
+	}
  
+	bool operator!=(const BigCount & sample){
+		return !(*this == sample);
+	}
+
 	BigCount operator+(const BigCount & sample){	//直接上BigCount sample也可
 		BigCount result;
 		int maxlong;
@@ -130,9 +154,42 @@ public:
 		return result;
 	}
 
-	//BigCount operator/(const BigCount & sample){
+	BigCount operator/(const BigCount & sample){
+		BigCount result("0");
+		BigCount zero("0");
+		BigCount one("1");
+		BigCount t;
+		int NegFlag = 0;
+		if(len > sample.len){
+			NegFlag = 1;
+		}
+		if(len < sample.len){
+			NegFlag = -1;
+		}
+		else{
+			NegFlag = strcmp(str,sample.str);
+		}
 
-
+		if(NegFlag >= 0){
+			while(this -> is_neg == 0 && *this != zero){
+				t = *this - sample;
+				*this = t;
+				result = result + one;
+			}
+		}
+		else{
+			int k = 0;
+		for(int i = result.len - 1;i >= 0;i--,k++){
+			result.str[k] = char(result.num[i] + '0');
+		}
+		return result;
+		}
+		int k = 0;
+		for(int i = result.len - 1;i >= 0;i--,k++){
+			result.str[k] = char(result.num[i] + '0');
+		}
+		return result;
+	}
 
 	friend ostream & operator<<(ostream & out,const BigCount & sample){
 		if(sample.is_neg == 1){
@@ -160,7 +217,7 @@ int main()
 		case '+': big = a+b;break;
 		case '-': big = a-b;break;
 		case '*': big = a*b;break;
-		//case '/': big=a/b;break;
+		case '/': big=a/b;break;
 	}
 	cout << big << endl;
 	return 0;
