@@ -92,7 +92,7 @@ public:
 		if(len > sample.len){
 			NegFlag = 1;
 		}
-		else if(len < sample.len){
+		if(len < sample.len){
 			NegFlag = -1;
 		}
 		else{
@@ -158,58 +158,31 @@ public:
 		BigCount result("0");
 		BigCount zero("0");
 		BigCount one("1");
-		BigCount ten("10");
 		BigCount t;
-		BigCount tempnum;
-		BigCount add;
 		int NegFlag = 0;
-		int shiftlong;
 		if(len > sample.len){
 			NegFlag = 1;
 		}
-		else if(len < sample.len){
+		if(len < sample.len){
 			NegFlag = -1;
 		}
 		else{
 			NegFlag = strcmp(str,sample.str);
 		}
 
-		if(NegFlag < 0){
-			return zero;
-		}
-		else if(NegFlag == 0 && len == 1 && num[0] == 0){
-			return zero;
-		}
-		else if(NegFlag == 0){
-			return one;
+		if(NegFlag >= 0){
+			while(this -> is_neg == 0 && *this != zero){
+				t = *this - sample;
+				*this = t;
+				result = result + one;
+			}
 		}
 		else{
-			shiftlong = len - sample.len;
-			while(shiftlong >= 0){
-				tempnum = sample;
-				for(int i = 0;i < shiftlong;i++){
-					tempnum = tempnum * ten;
-				}
-				//printf("     %s\n",tempnum.str);
-				//printf("     %s\n",str);
-				while(len >= tempnum.len){
-					if(len == tempnum.len){
-						if(strcmp(str,tempnum.str) < 0){
-							break;
-						}
-					}
-					t = *this - tempnum;
-					*this = t;
-					add = one;
-					for(int j = 0;j < shiftlong;j++){
-						add = add * ten;
-					}
-					//printf("   %s\n",add.str);
-					//printf("   %s\n",this -> str);
-					result = result + add;
-				}
-				shiftlong -= 1;
-			}
+			int k = 0;
+		for(int i = result.len - 1;i >= 0;i--,k++){
+			result.str[k] = char(result.num[i] + '0');
+		}
+		return result;
 		}
 		int k = 0;
 		for(int i = result.len - 1;i >= 0;i--,k++){
@@ -217,9 +190,6 @@ public:
 		}
 		return result;
 	}
-
-
-			
 
 	friend ostream & operator<<(ostream & out,const BigCount & sample){
 		if(sample.is_neg == 1){
@@ -247,7 +217,7 @@ int main()
 		case '+': big = a+b;break;
 		case '-': big = a-b;break;
 		case '*': big = a*b;break;
-		case '/': big = a/b;break;
+		case '/': big=a/b;break;
 	}
 	cout << big << endl;
 	return 0;
