@@ -53,7 +53,7 @@ int BFS(int x,int y){
 					return ts;
 				}
 			}
-			if(isdigit(map[tx][ty])){
+			if(map[tx][ty] >= '0' && map[tx][ty] <= '4'){
 				visited[tx][ty][tk] = 1;
 				tk=tk | (1 << (map[tx][ty] - '0'));
 				q.push(Node(tx,ty,ts,tk));
@@ -94,7 +94,7 @@ int main(){
 		for(int i = 0; i < R; i++){
 			for(int j = 0; j < C;j++){
 				cin >> map[i][j];
-				if(isdigit(map[i][j])){
+				if(map[i][j] >= '0' && map[i][j] <= '4'){
 					DiamondNum++;
 				}
 				if(map[i][j] == '$'){
