@@ -87,6 +87,10 @@ public class Percolation {
 	
 	public boolean percolates() {             // does the system percolate?
 
+		if(maxSize == 1 && !isOpen(1, 1)) {
+			return false;
+		}
+		
 		return this.UnionFind.connected(topSite, bottomSite);
 	}
 	
@@ -111,7 +115,7 @@ public class Percolation {
 		perc.open(1, 1);
 		System.out.println(perc.percolates());
 		
-		Percolation perc1 = new Percolation(4);
+		Percolation perc1 = new Percolation(1);
 		
 		//perc1.open(1, 1);
 		System.out.println(perc1.percolates());
