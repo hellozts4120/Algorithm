@@ -44,9 +44,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 		int randomNum = (int)(Math.random() * this.size);
 		Item returnItem = this.items[randomNum];
 		if(randomNum != this.size - 1) {
-			for(int i = randomNum; i < this.size - 1; i++) {
-				this.items[i] = this.items[i + 1];
-			}
+			this.items[randomNum] = this.items[this.size - 1];
 		}
 		this.size--;
 		if((this.size > 0) && (this.size == items.length/4)) {

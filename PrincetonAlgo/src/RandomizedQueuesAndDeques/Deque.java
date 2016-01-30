@@ -147,6 +147,11 @@ public class Deque<Item> implements Iterable<Item> {
 		private Node ptr;
 		private Item i;
 		
+		public ListIterator() {
+			
+			this.ptr = first;
+		}
+		
 		@Override
 		public boolean hasNext() {
 			// TODO Auto-generated method stub
@@ -160,7 +165,7 @@ public class Deque<Item> implements Iterable<Item> {
 		public Item next() {
 			// TODO Auto-generated method stub
 			if(!hasNext()) {
-				throw new java.util.NoSuchElementException();
+				throw new java.util.NoSuchElementException("Item don't exist!");
 			}
 			else {
 				i = ptr.i;
