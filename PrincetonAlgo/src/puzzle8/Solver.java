@@ -9,7 +9,7 @@ public class Solver {
 	
 	private boolean isSolvable;
 	private Node ansNode;
-	private Board prevBoard, prevTwinBoard;
+	private int move = -1;
 	
     public Solver(Board initial) {
     	// find a solution to the initial board (using the A* algorithm)
@@ -17,44 +17,37 @@ public class Solver {
     		throw new java.lang.NullPointerException("initial board found to be null!");
     	}
     	MinPQ<Node> minPQ = new MinPQ<Node>();
-    	MinPQ<Node> minTwinPQ = new MinPQ<Node>();
-    	minPQ.insert(new Node(initial));
-    	minTwinPQ.insert(new Node(initial.twin()));
-    	Node solution;
-    	this.isSolvable = false;
-    	do {
-    		solution = BFS(minPQ, true);
-    		if (solution != null) {
-    			isSolvable = true;
-    			this.ansNode = solution;
-    		}
-    		else {
-    			solution = BFS(minTwinPQ, false);
-    		}
-    	} while (solution == null);
+    	minPQ.insert(new Node(initial, null, 0, false));
+    	minPQ.insert(new Node(initial.twin(), null, 0, true));
+    	BFS(minPQ);
     }
     
-    private Node BFS(MinPQ<Node> mPQ, boolean status) {
-    	Node minNode = mPQ.delMin();
-    	if (minNode.board.isGoal()) return minNode;
-    	for (Board neighbor : minNode.board.neighbors()) {
-    		if (status && this.prevBoard != null && 
-    				this.prevBoard.equals(neighbor)) {
-    			continue;
+    private void BFS(MinPQ<Node> minPQ) {
+    	while (true) {
+    		Node minNode = minPQ.delMin();
+    		if (minNode.board.isGoal()) {
+    			if (minNode.isTwin) {
+    				this.isSolvable = false;
+    				this.move = -1;
+    			}
+    			else {
+    				this.isSolvable = true;
+    				this.move = minNode.moveNum;
+    				this.ansNode = minNode;
+    			}
+    			break;
     		}
-    		if (!status && this.prevTwinBoard != null && this.prevTwinBoard != null
-    				&& this.prevTwinBoard.equals(neighbor)) {
-    			continue;
+    		for (Board neighbor : minNode.board.neighbors()) {
+    			Node neighborNode = new Node(neighbor, minNode, 
+    					minNode.moveNum + 1, minNode.isTwin);
+    			if (minNode.preNode == null) {
+    				minPQ.insert(neighborNode);
+    			}
+    			else if (!minNode.preNode.board.equals(neighborNode.board)) {
+    				minPQ.insert(neighborNode);
+    			}
     		}
-    		mPQ.insert(new Node(neighbor, minNode));
     	}
-    	if (status) {
-    		this.prevBoard = minNode.board;
-    	}
-    	else {
-    		this.prevTwinBoard = minNode.board;
-    	}
-    	return null;
     }
     
     public boolean isSolvable() {
@@ -64,14 +57,14 @@ public class Solver {
     
     public int moves() {
     	// min number of moves to solve initial board; -1 if unsolvable
-    	return isSolvable ? this.ansNode.moveNum : -1;
+    	return this.move;
     }
     
     public Iterable<Board> solution() {
     	// sequence of boards in a shortest solution; null if unsolvable
     	if (!this.isSolvable) return null;
     	Node curNode = this.ansNode;
-    	Stack<Board> solutionStack =  new Stack<Board>();
+    	Stack<Board> solutionStack = new Stack<Board>();
     	solutionStack.push(curNode.board);
     	while (curNode.preNode != null) {
     		curNode = curNode.preNode;
@@ -84,30 +77,22 @@ public class Solver {
     	private Board board;
     	private int moveNum = 0;
     	private Node preNode;
+    	private final boolean isTwin;
     	
-    	private Node(Board b) {
-    		this.board = b;
-    	}
-    	
-    	private Node(Board b, Node n) {
+    	private Node(Board b, Node n, int move, boolean isTwin) {
+    		this.isTwin = isTwin;
     		this.board = b;
     		this.preNode = n;
-    		this.moveNum += n.moveNum;
-    		this.moveNum++;
+    		this.moveNum = move;
     	}
     	
     	@Override
     	public int compareTo(Object o) {
     		Node that = (Node)o;
+    		if (this.board.equals(that.board)) return 0;
     		int manhattanDiff = (this.board.manhattan() + this.moveNum) - 
     				(that.board.manhattan() + that.moveNum);
-    		if (manhattanDiff == 0) {
-    			return (this.board.hamming() + this.moveNum) - (that.board.hamming()
-    					 + that.moveNum);
-    		}
-    		else {
-    			return manhattanDiff;
-    		}
+    		return (manhattanDiff > 0) ? 1 : -1;
     	}
     }
     

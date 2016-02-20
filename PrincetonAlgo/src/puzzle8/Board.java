@@ -8,10 +8,6 @@ public class Board {
 	private int pHamming, pManhattan;
 	private int n, blankPos;
 	
-	public Board() {
-		//null constructor
-	}
-	
     public Board(int[][] blocks) {
     	// construct a board from an N-by-N array of blocks
     	// (where blocks[i][j] = block in row i, column j)
@@ -85,23 +81,36 @@ public class Board {
     
     public Board twin() {
     	// a board that is obtained by exchanging any pair of blocks
-    	Board twinBoard = new Board();
+    	int[][]newBlock = cloneBlock();
+    	Board twinBoard = new Board(newBlock);
     	twinBoard.board = new int [n * n];
     	twinBoard.n = this.n;
     	for (int i = 0; i < n * n; i++) {
     		twinBoard.board[i] = this.board[i];
     		if (this.board[i] == 0) twinBoard.blankPos = i;
-    		if (twinBoard.blankPos < 2) {
-    			int exch = twinBoard.board[this.n];
-    			twinBoard.board[this.n] = twinBoard.board[this.n + 1];
-    			twinBoard.board[this.n + 1] = exch;
-            } else {
-                int exch = twinBoard.board[0];
-                twinBoard.board[0] = twinBoard.board[1];
-                twinBoard.board[1] = exch;
-            }
     	}
+    	if (twinBoard.board[0] != 0 && twinBoard.board[1] != 0){  
+            int temp = twinBoard.board[0];  
+            twinBoard.board[0] = twinBoard.board[1];  
+            twinBoard.board[1] = temp;  
+        }
+    	else{  
+            int temp = twinBoard.board[this.n];  
+            twinBoard.board[this.n] = twinBoard.board[this.n + 1];  
+            twinBoard.board[this.n + 1] = temp;  
+        }  
     	return twinBoard;
+    }
+    
+    private int[][] cloneBlock() {
+    	int newBlock[][] = new int[this.n][this.n];
+    	int index = 0;
+    	for (int i = 0; i < this.n; i++) {
+    		for (int j = 0; j < this.n; j++) {
+    			newBlock[i][j] = this.board[index++];
+    		}
+    	}
+    	return newBlock;
     }
     
     public boolean equals(Object y) {
@@ -109,12 +118,16 @@ public class Board {
     	if (this == y) {
     		return true;
     	}
+    	if (y == null) {
+    		return false;
+    	}
     	if (!(y instanceof Board)) {
     		return false;
     	}
     	Board tempBoard = (Board)y;
     	if (tempBoard.n != this.n || tempBoard.pHamming != this.pHamming ||
-    			tempBoard.pManhattan != this.pManhattan) {
+    			tempBoard.pManhattan != this.pManhattan ||
+    			tempBoard.blankPos != this.blankPos) {
     		return false;
     	}
     	for (int i = 0; i < n * n - 1; i++) {
@@ -128,11 +141,11 @@ public class Board {
     public Iterable<Board> neighbors() {
     	// all neighboring boards
     	Stack<Board> neighbors = new Stack<Board>();
-    	if (this.blankPos + 1 < this.n && (this.blankPos + 1) / this.n ==
+    	if (this.blankPos % this.n + 1 < this.n && (this.blankPos + 1) / this.n ==
     		this.blankPos / this.n) {
     		neighbors.push(makeNeighbor(this.blankPos + 1));
     	}
-    	if (this.blankPos - 1 >= 0 && (this.blankPos - 1) / this.n ==
+    	if (this.blankPos % this.n - 1 >= 0 && (this.blankPos - 1) / this.n ==
         		this.blankPos / this.n) {
     		neighbors.push(makeNeighbor(this.blankPos - 1));
     	}
@@ -146,7 +159,8 @@ public class Board {
     }
     
     private Board makeNeighbor(int newBlankPos) {
-        Board neighbor = new Board();
+    	int[][]newBlock = cloneBlock();
+        Board neighbor = new Board(newBlock);
         neighbor.blankPos = newBlankPos;
         neighbor.n = n;
         neighbor.board = new int[n * n];
@@ -180,8 +194,7 @@ public class Board {
 
     public static void main(String[] args) {
     	// unit tests (not graded)
-    	int n = 3;
-        int[][] blocks3 = new int[][] {new int []{8,1,3}, new int [] {4,0,2}, new int []{7,6,5}};
+        int[][] blocks3 = new int[][] {new int []{1, 3, 14, 10}, new int [] {5, 6, 2, 3}, new int []{11, 0, 15, 4}, new int []{12, 7, 8, 9}};
         Board board = new Board(blocks3);
         System.out.printf("Manhatten %d, Hamming %d\n", board.manhattan(), board.hamming());
         System.out.println(board);
@@ -197,10 +210,19 @@ public class Board {
         Board twin = board.twin();
         System.out.printf("Manhatten %d, Hamming %d\n", twin.manhattan(), twin.hamming());
         System.out.println(twin);
-        int[][] blocks2 = new int[][] {new int []{1,2}, new int [] {3,0}};
+        int[][] blocks2 = new int[][] {new int []{1, 2}, new int [] {0, 3}};
         Board board00 = new Board(blocks2);
         System.out.printf("Manhatten %d, Hamming %d\n", board00.manhattan(), board00.hamming());
         System.out.println(board00);
+        for (Board b : board00.neighbors()) {
+            System.out.println("Neighbor");
+            System.out.printf("Manhatten %d, Hamming %d\n", b.manhattan(), b.hamming());
+            System.out.println(b);
+        }
+        System.out.println("Twin Board");
+        Board twin00 = board00.twin();
+        System.out.printf("Manhatten %d, Hamming %d\n", twin00.manhattan(), twin00.hamming());
+        System.out.println(twin00);
     }
     
 }
